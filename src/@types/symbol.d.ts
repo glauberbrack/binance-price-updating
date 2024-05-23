@@ -1,7 +1,24 @@
 declare type TSymbols = {
   symbol: string;
-  lastPrice: number;
-  bidPrice: number;
-  askPrice: number;
-  priceChange: number;
+  status: string;
+  baseAsset: string;
+  baseAssetPrecision: number;
+  quoteAsset: string;
+  quotePrecision: number;
+  quoteAssetPrecision: number;
+  baseCommissionPrecision: number;
+  quoteCommissionPrecision: number;
+  orderTypes: string[];
+  icebergAllowed: boolean;
+  ocoAllowed: boolean;
+  otoAllowed: boolean;
+  quoteOrderQtyMarketAllowed: boolean;
+  allowTrailingStop: boolean;
+  cancelReplaceAllowed: boolean;
+  isSpotTradingAllowed: boolean;
+  isMarginTradingAllowed: boolean;
+  permissions: string[];
+  permissionSets: string[][];
+  defaultSelfTradePreventionMode: string;
+  allowedSelfTradePreventionModes: string[];
 };
