@@ -6,6 +6,7 @@ import React, {
   ReactNode,
 } from "react";
 import { SYMBOLS_MOCK } from "./mocked";
+import { getBinanceSymbols } from "../api";
 
 interface SymbolsContextType {
   symbols: TSymbols[];
@@ -30,10 +31,6 @@ export const SymbolsProvider: React.FC<{ children: ReactNode }> = ({
   const [selectedSymbols, setSelectedSymbols] = useState<TSymbols[]>([]);
   const [listSymbols, setListSymbols] = useState<TSymbols[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-
-  useEffect(() => {
-    setSymbols(SYMBOLS_MOCK);
-  }, []);
 
   const addSymbol = (symbol: TSymbols) => {
     setSelectedSymbols((prevSelectedSymbols) =>
@@ -85,6 +82,15 @@ export const SymbolsProvider: React.FC<{ children: ReactNode }> = ({
       (list) =>
         !selectedSymbols.some((selected) => selected.symbol === list.symbol)
     );
+
+  const getSymbols = async () => {
+    const symbols = await getBinanceSymbols();
+    setSymbols(symbols.symbols);
+  };
+
+  useEffect(() => {
+    getSymbols();
+  }, []);
 
   return (
     <SymbolsContext.Provider
