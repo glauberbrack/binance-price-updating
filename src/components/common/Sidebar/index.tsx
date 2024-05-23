@@ -1,28 +1,16 @@
+import { FixedSizeList as List } from "react-window";
 import { useSymbols } from "../../../context/SymbolsContext";
+import { Wrapper, SearchInput, AddButton, ListWrapper } from "./styles";
 
-import { Wrapper, SearchInput, List, ListItem, AddButton } from "./styles";
+import { SymbolSelect } from "../SymbolSelect";
 
 export const Sidebar = () => {
-  const {
-    symbols,
-    selectedSymbols,
-    addSymbol,
-    deleteSymbol,
-    searchTerm,
-    setSearchTerm,
-    addToList,
-    pendingChanges,
-  } = useSymbols();
+  const { symbols, searchTerm, setSearchTerm, addToList, pendingChanges } =
+    useSymbols();
 
   const filteredSymbols = symbols.filter((symbol) =>
     symbol.symbol.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const handleToggleSymbol = (symbol: (typeof symbols)[0]) => {
-    selectedSymbols.some((s) => s.symbol === symbol.symbol)
-      ? deleteSymbol(symbol)
-      : addSymbol(symbol);
-  };
 
   return (
     <Wrapper>
@@ -32,18 +20,16 @@ export const Sidebar = () => {
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
-      <List>
-        {filteredSymbols.map((symbol) => (
-          <ListItem key={`symbol-${symbol.symbol}`}>
-            <input
-              type="checkbox"
-              onChange={() => handleToggleSymbol(symbol)}
-              checked={selectedSymbols.some((s) => s.symbol === symbol.symbol)}
-            />
-            {symbol.symbol}
-          </ListItem>
-        ))}
-      </List>
+      <ListWrapper>
+        <List
+          height={400}
+          itemCount={filteredSymbols.length}
+          itemSize={35}
+          width="100%"
+        >
+          {SymbolSelect}
+        </List>
+      </ListWrapper>
       <AddButton
         onClick={addToList}
         pendingChanges={pendingChanges}

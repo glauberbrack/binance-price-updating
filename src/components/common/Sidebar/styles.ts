@@ -22,22 +22,13 @@ export const SearchInput = styled.input`
   border-radius: 5px;
 `;
 
-export const List = styled.div`
+export const ListWrapper = styled.div`
   border: 1px solid var(--color-light);
+
   border-radius: 5px;
   margin-bottom: 10px;
-
   padding: 10px;
-`;
-
-export const ListItem = styled.div`
-  padding: 14px 8px;
-  border-bottom: 1px solid var(--color-light);
-
-  &:last-child {
-    margin-bottom: 0;
-    border-bottom: none;
-  }
+  overflow: hidden;
 `;
 
 export const AddButton = styled.button<{ pendingChanges: boolean }>`
