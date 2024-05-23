@@ -5,7 +5,8 @@ import React, {
   useContext,
   ReactNode,
 } from "react";
-import { SYMBOLS_MOCK } from "./mocked";
+import useWebSocket from "react-use-websocket";
+
 import { getBinanceSymbols } from "../api";
 
 interface SymbolsContextType {
@@ -20,17 +21,19 @@ interface SymbolsContextType {
   addToList: () => void;
   removeFromList: (symbol: TSymbols) => void;
   pendingChanges: boolean;
+  tradeInfo: { [key: string]: TSymbolInfo };
 }
 
 const SymbolsContext = createContext<SymbolsContextType | undefined>(undefined);
 
-export const SymbolsProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
+export const SymbolsProvider = ({ children }: { children: ReactNode }) => {
   const [symbols, setSymbols] = useState<TSymbols[]>([]);
   const [selectedSymbols, setSelectedSymbols] = useState<TSymbols[]>([]);
   const [listSymbols, setListSymbols] = useState<TSymbols[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [tradeInfo, setTradeInfo] = useState<{
+    [key: string]: TSymbolInfo;
+  }>({});
 
   const addSymbol = (symbol: TSymbols) => {
     setSelectedSymbols((prevSelectedSymbols) =>
@@ -92,6 +95,50 @@ export const SymbolsProvider: React.FC<{ children: ReactNode }> = ({
     getSymbols();
   }, []);
 
+  const symbolList = listSymbols
+    .map((symbol) => `${symbol.symbol.toLowerCase()}@ticker`)
+    .join("/");
+  const wsUrl = `wss://stream.binance.com:9443/stream?streams=${symbolList}`;
+
+  const { lastJsonMessage, sendJsonMessage } = useWebSocket<TSymbolsWebSocket>(
+    wsUrl,
+    {
+      onOpen: () => console.log(`Connected to WebSocket`),
+      onError: (event) => {
+        console.error(event);
+      },
+      onMessage: () => {
+        if (lastJsonMessage) {
+          setTradeInfo((prev) => ({
+            ...prev,
+            [lastJsonMessage.data.s]: lastJsonMessage.data,
+          }));
+        }
+      },
+      shouldReconnect: () => true,
+      reconnectInterval: 10,
+    }
+  );
+
+  useEffect(() => {
+    setTradeInfo({});
+    return () => {
+      setTradeInfo({});
+    };
+  }, [listSymbols]);
+
+  useEffect(() => {
+    const pingPongInterval = setInterval(() => {
+      if (lastJsonMessage) {
+        sendJsonMessage({ ping: "pong" });
+      }
+    }, 180000);
+
+    return () => {
+      clearInterval(pingPongInterval);
+    };
+  }, [lastJsonMessage, sendJsonMessage]);
+
   return (
     <SymbolsContext.Provider
       value={{
@@ -106,6 +153,7 @@ export const SymbolsProvider: React.FC<{ children: ReactNode }> = ({
         addToList,
         removeFromList,
         pendingChanges,
+        tradeInfo,
       }}
     >
       {children}

@@ -8,33 +8,38 @@ import {
   RemoveButton,
 } from "./styles";
 
+import { formatDecimalNumber, formatPercentage } from "../../../helpers";
+
 export const Table: React.FC = () => {
-  const { listSymbols, removeFromList } = useSymbols();
+  const { listSymbols, removeFromList, tradeInfo } = useSymbols();
 
   return (
     <TableWrapper>
       <TableHeader>
         <TableCell>Symbol</TableCell>
-        <TableCell>Last</TableCell>
-        <TableCell>Bid</TableCell>
-        <TableCell>Ask</TableCell>
-        <TableCell>Change (%)</TableCell>
+        <TableCell>Last Price</TableCell>
+        <TableCell>Bid Price</TableCell>
+        <TableCell>Ask Price</TableCell>
+        <TableCell>Price Change (%)</TableCell>
         <TableCell>Actions</TableCell>
       </TableHeader>
-      {listSymbols.map((symbol) => (
-        <TableRow key={`list-symbol-${symbol.symbol}`}>
-          <TableCell>{symbol.symbol}</TableCell>
-          <TableCell>{symbol.lastPrice}</TableCell>
-          <TableCell>{symbol.bidPrice}</TableCell>
-          <TableCell>{symbol.askPrice}</TableCell>
-          <TableCell>{symbol.priceChange}%</TableCell>
-          <TableCell>
-            <RemoveButton onClick={() => removeFromList(symbol)}>
-              X
-            </RemoveButton>
-          </TableCell>
-        </TableRow>
-      ))}
+      {listSymbols.map((symbol) => {
+        const item = tradeInfo[symbol.symbol.toUpperCase()];
+        return (
+          <TableRow key={`list-symbol-${symbol.symbol}`}>
+            <TableCell>{symbol.symbol}</TableCell>
+            <TableCell>{item ? formatDecimalNumber(item.c) : "-"}</TableCell>
+            <TableCell>{item ? formatDecimalNumber(item.b) : "-"}</TableCell>
+            <TableCell>{item ? formatDecimalNumber(item.a) : "-"}</TableCell>
+            <TableCell>{item ? formatPercentage(item.P) : "-"}</TableCell>
+            <TableCell>
+              <RemoveButton onClick={() => removeFromList(symbol)}>
+                X
+              </RemoveButton>
+            </TableCell>
+          </TableRow>
+        );
+      })}
     </TableWrapper>
   );
 };
