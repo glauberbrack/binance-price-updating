@@ -1,4 +1,4 @@
-import React, {
+import {
   createContext,
   useState,
   useEffect,
@@ -11,6 +11,7 @@ import { getBinanceSymbols } from "../api";
 
 interface SymbolsContextType {
   symbols: TSymbols[];
+  isLoading: boolean;
   selectedSymbols: TSymbols[];
   lists: { [key: string]: TSymbols[] };
   currentList: string;
@@ -31,6 +32,7 @@ const SymbolsContext = createContext<SymbolsContextType | undefined>(undefined);
 
 export const SymbolsProvider = ({ children }: { children: ReactNode }) => {
   const [symbols, setSymbols] = useState<TSymbols[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [selectedSymbols, setSelectedSymbols] = useState<TSymbols[]>([]);
   const [lists, setLists] = useState<{ [key: string]: TSymbols[] }>({
     "Default List": [],
@@ -101,8 +103,16 @@ export const SymbolsProvider = ({ children }: { children: ReactNode }) => {
     );
 
   const getSymbols = async () => {
-    const symbols = await getBinanceSymbols();
-    setSymbols(symbols.symbols);
+    try {
+      setIsLoading(true);
+      const symbols = await getBinanceSymbols();
+      setSymbols(symbols.symbols);
+    } catch (error: any) {
+      // Handle error on UI
+      throw new Error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -171,6 +181,7 @@ export const SymbolsProvider = ({ children }: { children: ReactNode }) => {
         selectList,
         pendingChanges,
         tradeInfo,
+        isLoading,
       }}
     >
       {children}

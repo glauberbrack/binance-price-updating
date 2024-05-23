@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { FixedSizeList as List } from "react-window";
 
 import { SymbolSelect } from "../SymbolSelect";
@@ -26,29 +26,32 @@ export const Sidebar = () => {
 
   return (
     <Wrapper>
-      <SearchInput
-        type="text"
-        placeholder="Search"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-      <ListWrapper>
-        <List
-          height={400}
-          itemCount={filteredSymbols.length}
-          itemSize={35}
-          width="100%"
+      <Suspense fallback={<h2>🌀 Loading...</h2>}>
+        <SearchInput
+          type="text"
+          placeholder="Search"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+
+        <ListWrapper>
+          <List
+            height={400}
+            itemCount={filteredSymbols.length}
+            itemSize={35}
+            width="100%"
+          >
+            {SymbolSelect}
+          </List>
+        </ListWrapper>
+        <AddButton
+          onClick={addToList}
+          pendingChanges={pendingChanges}
+          disabled={!pendingChanges}
         >
-          {SymbolSelect}
-        </List>
-      </ListWrapper>
-      <AddButton
-        onClick={addToList}
-        pendingChanges={pendingChanges}
-        disabled={!pendingChanges}
-      >
-        Add to List
-      </AddButton>
+          Add to List
+        </AddButton>
+      </Suspense>
     </Wrapper>
   );
 };
