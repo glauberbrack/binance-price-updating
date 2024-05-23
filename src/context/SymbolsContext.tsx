@@ -108,8 +108,7 @@ export const SymbolsProvider = ({ children }: { children: ReactNode }) => {
       const symbols = await getBinanceSymbols();
       setSymbols(symbols.symbols);
     } catch (error: any) {
-      // Handle error on UI
-      throw new Error(error);
+      alert("Error fetching symbols");
     } finally {
       setIsLoading(false);
     }
