@@ -3,30 +3,34 @@ import React, { memo } from "react";
 import { useSymbols } from "../../../context/SymbolsContext";
 import { ListItem } from "./styles";
 
-export const SymbolSelect = memo(
-  ({ index, style }: { index: number; style: React.CSSProperties }) => {
-    // @context
-    const { symbols, selectedSymbols, addSymbol, deleteSymbol } = useSymbols();
+type Props = {
+  index: number;
+  style: React.CSSProperties;
+  symbols: TSymbols[];
+};
 
-    // @constants
-    const symbol = symbols[index];
+export const SymbolSelect = memo(({ index, style, symbols }: Props) => {
+  // @context
+  const { selectedSymbols, addSymbol, deleteSymbol } = useSymbols();
 
-    // @handlers
-    const handleToggleSymbol = (symbol: (typeof symbols)[0]) => {
-      selectedSymbols.some((s) => s.symbol === symbol.symbol)
-        ? deleteSymbol(symbol)
-        : addSymbol(symbol);
-    };
+  // @constants
+  const symbol = symbols[index];
 
-    return (
-      <ListItem style={style}>
-        <input
-          type="checkbox"
-          onChange={() => handleToggleSymbol(symbol)}
-          checked={selectedSymbols.some((s) => s.symbol === symbol.symbol)}
-        />
-        {symbol.symbol}
-      </ListItem>
-    );
-  }
-);
+  // @hanlders
+  const handleToggleSymbol = (symbol: (typeof symbols)[0]) => {
+    selectedSymbols.some((s) => s.symbol === symbol.symbol)
+      ? deleteSymbol(symbol)
+      : addSymbol(symbol);
+  };
+
+  return (
+    <ListItem style={style}>
+      <input
+        type="checkbox"
+        onChange={() => handleToggleSymbol(symbol)}
+        checked={selectedSymbols.some((s) => s.symbol === symbol.symbol)}
+      />
+      {symbol.symbol}
+    </ListItem>
+  );
+});
