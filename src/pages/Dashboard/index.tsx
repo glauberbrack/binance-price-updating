@@ -1,12 +1,11 @@
-import React from "react";
-import styled from "styled-components";
-import { Sidebar, Table } from "../../components/common";
+import { Sidebar, ListSelector, Table } from "../../components/common";
 
-const Container = styled.div`
+import styled from "styled-components";
+
+const DashboardWrapper = styled.div`
   display: flex;
   flex-direction: column;
   padding: 16px;
-  margin: 0 12px;
 
   @media (min-width: 768px) {
     flex-direction: row;
@@ -14,11 +13,14 @@ const Container = styled.div`
   }
 `;
 
-export const Dashboard: React.FC = () => {
+export const Dashboard = () => {
   return (
-    <Container>
+    <DashboardWrapper>
       <Sidebar />
-      <Table />
-    </Container>
+      <div style={{ flex: 1 }}>
+        <ListSelector />
+        <Table />
+      </div>
+    </DashboardWrapper>
   );
 };

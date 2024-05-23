@@ -1,3 +1,4 @@
+import React from "react";
 import { useSymbols } from "../../../context/SymbolsContext";
 import {
   TableWrapper,
@@ -11,7 +12,9 @@ import { formatDecimalNumber, formatPercentage } from "../../../helpers";
 
 export const Table = () => {
   // @contexts
-  const { listSymbols, removeFromList, tradeInfo } = useSymbols();
+  const { lists, currentList, removeFromList, tradeInfo } = useSymbols();
+
+  const listSymbols = lists[currentList] || [];
 
   return (
     <TableWrapper>

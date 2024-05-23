@@ -5,6 +5,7 @@ export const Wrapper = styled.div`
   background-color: var(--color-white);
   border-radius: 16px;
 
+  margin-bottom: 16px;
   padding: 8px;
 
   @media (min-width: 768px) {

@@ -1,4 +1,4 @@
-import {
+import React, {
   createContext,
   useState,
   useEffect,
@@ -12,12 +12,17 @@ import { getBinanceSymbols } from "../api";
 interface SymbolsContextType {
   symbols: TSymbols[];
   selectedSymbols: TSymbols[];
-  listSymbols: TSymbols[];
+  lists: { [key: string]: TSymbols[] };
+  currentList: string;
+  searchTerm: string;
   setSelectedSymbols: (symbols: TSymbols[]) => void;
+  setSearchTerm: (term: string) => void;
   addSymbol: (symbol: TSymbols) => void;
   deleteSymbol: (symbol: TSymbols) => void;
   addToList: () => void;
   removeFromList: (symbol: TSymbols) => void;
+  createList: (listName: string) => void;
+  selectList: (listName: string) => void;
   pendingChanges: boolean;
   tradeInfo: { [key: string]: TSymbolInfo };
 }
@@ -27,10 +32,14 @@ const SymbolsContext = createContext<SymbolsContextType | undefined>(undefined);
 export const SymbolsProvider = ({ children }: { children: ReactNode }) => {
   const [symbols, setSymbols] = useState<TSymbols[]>([]);
   const [selectedSymbols, setSelectedSymbols] = useState<TSymbols[]>([]);
-  const [listSymbols, setListSymbols] = useState<TSymbols[]>([]);
-  const [tradeInfo, setTradeInfo] = useState<{
-    [key: string]: TSymbolInfo;
-  }>({});
+  const [lists, setLists] = useState<{ [key: string]: TSymbols[] }>({
+    "Default List": [],
+  });
+  const [currentList, setCurrentList] = useState("Default List");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [tradeInfo, setTradeInfo] = useState<{ [key: string]: TSymbolInfo }>(
+    {}
+  );
 
   const addSymbol = (symbol: TSymbols) => {
     setSelectedSymbols((prevSelectedSymbols) =>
@@ -47,38 +56,46 @@ export const SymbolsProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const addToList = () => {
-    setListSymbols((prevListSymbols) => {
-      const newList = prevListSymbols.filter((symbol) =>
-        selectedSymbols.some((selected) => selected.symbol === symbol.symbol)
-      );
-
-      selectedSymbols.forEach((symbol) => {
-        if (
-          !newList.some((listSymbol) => listSymbol.symbol === symbol.symbol)
-        ) {
-          newList.push(symbol);
-        }
-      });
-
-      return newList;
+    setLists((prevLists) => {
+      const newList = [
+        ...prevLists[currentList],
+        ...selectedSymbols.filter(
+          (symbol) =>
+            !prevLists[currentList].some((s) => s.symbol === symbol.symbol)
+        ),
+      ];
+      return { ...prevLists, [currentList]: newList };
     });
   };
 
   const removeFromList = (symbol: TSymbols) => {
-    setSelectedSymbols((prevSelectedSymbols) =>
-      prevSelectedSymbols.filter((s) => s.symbol !== symbol.symbol)
-    );
-    setListSymbols((prevListSymbols) =>
-      prevListSymbols.filter((s) => s.symbol !== symbol.symbol)
-    );
+    setLists((prevLists) => {
+      const newList = prevLists[currentList].filter(
+        (s) => s.symbol !== symbol.symbol
+      );
+      return { ...prevLists, [currentList]: newList };
+    });
+  };
+
+  const createList = (listName: string) => {
+    setLists((prevLists) => ({
+      ...prevLists,
+      [listName]: [],
+    }));
+    setCurrentList(listName);
+  };
+
+  const selectList = (listName: string) => {
+    setCurrentList(listName);
   };
 
   // Check if there are changes to apply
   const pendingChanges =
     selectedSymbols.some(
-      (selected) => !listSymbols.some((list) => list.symbol === selected.symbol)
+      (selected) =>
+        !lists[currentList]?.some((list) => list.symbol === selected.symbol)
     ) ||
-    listSymbols.some(
+    lists[currentList]?.some(
       (list) =>
         !selectedSymbols.some((selected) => selected.symbol === list.symbol)
     );
@@ -92,8 +109,8 @@ export const SymbolsProvider = ({ children }: { children: ReactNode }) => {
     getSymbols();
   }, []);
 
-  const symbolList = listSymbols
-    .map((symbol) => `${symbol.symbol.toLowerCase()}@ticker`)
+  const symbolList = lists[currentList]
+    ?.map((symbol) => `${symbol.symbol.toLowerCase()}@ticker`)
     .join("/");
   const wsUrl = `wss://stream.binance.com:9443/stream?streams=${symbolList}`;
 
@@ -122,7 +139,7 @@ export const SymbolsProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       setTradeInfo({});
     };
-  }, [listSymbols]);
+  }, [lists, currentList]);
 
   useEffect(() => {
     const pingPongInterval = setInterval(() => {
@@ -141,12 +158,17 @@ export const SymbolsProvider = ({ children }: { children: ReactNode }) => {
       value={{
         symbols,
         selectedSymbols,
-        listSymbols,
+        lists,
+        currentList,
+        searchTerm,
         setSelectedSymbols,
+        setSearchTerm,
         addSymbol,
         deleteSymbol,
         addToList,
         removeFromList,
+        createList,
+        selectList,
         pendingChanges,
         tradeInfo,
       }}
