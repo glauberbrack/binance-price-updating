@@ -1,4 +1,3 @@
-import React from "react";
 import { useSymbols } from "../../../context/SymbolsContext";
 import {
   TableWrapper,
@@ -10,7 +9,8 @@ import {
 
 import { formatDecimalNumber, formatPercentage } from "../../../helpers";
 
-export const Table: React.FC = () => {
+export const Table = () => {
+  // @contexts
   const { listSymbols, removeFromList, tradeInfo } = useSymbols();
 
   return (
@@ -43,5 +43,3 @@ export const Table: React.FC = () => {
     </TableWrapper>
   );
 };
-
-export default Table;

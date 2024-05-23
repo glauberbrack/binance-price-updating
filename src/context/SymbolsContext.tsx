@@ -1,4 +1,4 @@
-import React, {
+import {
   createContext,
   useState,
   useEffect,
@@ -13,9 +13,7 @@ interface SymbolsContextType {
   symbols: TSymbols[];
   selectedSymbols: TSymbols[];
   listSymbols: TSymbols[];
-  searchTerm: string;
   setSelectedSymbols: (symbols: TSymbols[]) => void;
-  setSearchTerm: (term: string) => void;
   addSymbol: (symbol: TSymbols) => void;
   deleteSymbol: (symbol: TSymbols) => void;
   addToList: () => void;
@@ -30,7 +28,6 @@ export const SymbolsProvider = ({ children }: { children: ReactNode }) => {
   const [symbols, setSymbols] = useState<TSymbols[]>([]);
   const [selectedSymbols, setSelectedSymbols] = useState<TSymbols[]>([]);
   const [listSymbols, setListSymbols] = useState<TSymbols[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
   const [tradeInfo, setTradeInfo] = useState<{
     [key: string]: TSymbolInfo;
   }>({});
@@ -145,9 +142,7 @@ export const SymbolsProvider = ({ children }: { children: ReactNode }) => {
         symbols,
         selectedSymbols,
         listSymbols,
-        searchTerm,
         setSelectedSymbols,
-        setSearchTerm,
         addSymbol,
         deleteSymbol,
         addToList,

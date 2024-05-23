@@ -1,16 +1,28 @@
+import { useMemo, useState } from "react";
 import { FixedSizeList as List } from "react-window";
-import { useSymbols } from "../../../context/SymbolsContext";
-import { Wrapper, SearchInput, AddButton, ListWrapper } from "./styles";
 
 import { SymbolSelect } from "../SymbolSelect";
+import { useDebounce } from "../../../hooks/useDebounce";
+import { useSymbols } from "../../../context/SymbolsContext";
+
+import { Wrapper, SearchInput, AddButton, ListWrapper } from "./styles";
 
 export const Sidebar = () => {
-  const { symbols, searchTerm, setSearchTerm, addToList, pendingChanges } =
-    useSymbols();
+  // @states
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredSymbols = symbols.filter((symbol) =>
-    symbol.symbol.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // @contexts
+  const { symbols, addToList, pendingChanges } = useSymbols();
+
+  // @hooks
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
+  // @memoizations
+  const filteredSymbols = useMemo(() => {
+    return symbols.filter((symbol) =>
+      symbol.symbol.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+    );
+  }, [symbols, debouncedSearchTerm]);
 
   return (
     <Wrapper>
